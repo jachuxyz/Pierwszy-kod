@@ -1,0 +1,179 @@
+import time
+import random
+
+class PrisonEscapeGame:
+    def __init__(self):
+        self.health = 100
+        self.money = 0
+        self.items = []
+        self.allies = []
+        self.enemies = ["Strażnik", "Psie Patrol", "Kierownik więzienia"]
+        self.escape_attempts = 0
+        self.days_left = 30
+        self.job_days = 0
+        self.police_alert_level = 0
+        self.game_loop()
+
+    def print_status(self):
+        print(f"\nZdrowie: {self.health}")
+        print(f"Pieniądze: {self.money} zł")
+        print(f"Przedmioty: {', '.join(self.items)}")
+        print(f"Sojusznicy: {', '.join(self.allies)}")
+        print(f"Liczba prób ucieczki: {self.escape_attempts}")
+        print(f"Pozostałe dni: {self.days_left}")
+        print(f"Liczba dni przepracowanych: {self.job_days}")
+        print(f"Poziom alarmu: {self.police_alert_level}")
+
+    def encounter_enemy(self):
+        enemy = random.choice(self.enemies)
+        print(f"\nNiebezpieczeństwo! Napotkałeś: {enemy}")
+        input("Naciśnij Enter, aby kontynuować...")
+        enemy_strength = random.randint(20, 50)
+        return enemy, enemy_strength
+
+    def fight_enemy(self, enemy, enemy_strength):
+        print(f"\nWalka z {enemy}!")
+        while self.health > 0 and enemy_strength > 0:
+            player_attack = random.randint(10, 25)
+            enemy_attack = random.randint(5, 20)
+
+            print(f"Atakujesz {enemy} i zadajesz {player_attack} obrażeń.")
+            print(f"{enemy} kontratakuje i zadaje {enemy_attack} obrażeń.")
+
+            self.health -= enemy_attack
+            enemy_strength -= player_attack
+
+            time.sleep(1)
+
+        if self.health <= 0:
+            print("Przegrałeś walkę. Jesteś zbyt słaby, aby uciec.")
+            self.end_game()
+        else:
+            print(f"Wygrałeś walkę z {enemy}! Uzyskujesz przewagę w ucieczce.")
+
+    def escape_attempt(self):
+        self.escape_attempts += 1
+        print("\nPróbujesz uciec z więzienia...")
+        time.sleep(2)
+        escape_chance = random.randint(1, 100)
+
+        if escape_chance > 50:
+            print("Udało się! Uciekłeś z więzienia!")
+            self.end_game(win=True)
+        else:
+            print("Nie udało się. Zostałeś złapany.")
+            self.fight_enemy(*self.encounter_enemy())
+
+    def explore_cell(self):
+        print("\nEksplorujesz swoją celę...")
+        time.sleep(2)
+        discovery_chance = random.randint(1, 100)
+
+        if discovery_chance <= 30:
+            print("Znalazłeś ukryty przedmiot!")
+            self.items.append("Mapa uwięzionego")
+        elif 30 < discovery_chance <= 60:
+            print("Nie znalazłeś niczego ciekawego.")
+        else:
+            print("Odkryłeś sekretny tunel! Możesz użyć go do ucieczki.")
+
+    def interact_with_inmates(self):
+        print("\nWchodzisz w interakcję z innymi więźniami...")
+        time.sleep(2)
+        interaction_chance = random.randint(1, 100)
+
+        if interaction_chance <= 40:
+            print("Zdobywasz przydatne informacje od innego więźnia.")
+            self.items.append("Klucz do drzwi")
+        elif 40 < interaction_chance <= 70:
+            print("Inny więzień próbuje cię okraść. Tracisz trochę zdrowia.")
+            self.health -= random.randint(10, 30)
+        else:
+            print("Zaprzyjaźniasz się z innym więźniem. Może w przyszłości ci pomoże.")
+            self.allies.append("Sojusznik więzienny")
+
+    def prison_job(self):
+        print("\nPracujesz w więziennej kantynie...")
+        time.sleep(2)
+        earnings = random.randint(10, 50)
+        self.money += earnings
+        self.job_days += 1
+        self.police_alert_level += random.randint(1, 5)
+        print(f"Zarobiłeś {earnings} zł.")
+
+    def prison_store(self):
+        print("\nOdwiedzasz sklep więzienny...")
+        time.sleep(2)
+        print("Co chciałbyś kupić?")
+        print("1. Apteczka (50 zł)")
+        print("2. Kij baseballowy (30 zł)")
+        print("3. Kawa (10 zł)")
+        print("4. Powrót do celi")
+
+        choice = input("Wybierz numer opcji: ")
+
+        if choice == "1" and self.money >= 50:
+            print("Kupiłeś apteczkę. Zdrowie zostało zwiększone.")
+            self.health += 20
+            self.money -= 50
+        elif choice == "2" and self.money >= 30:
+            print("Kupiłeś kij baseballowy. Może się przydać w walce.")
+            self.items.append("Kij baseballowy")
+            self.money -= 30
+        elif choice == "3" and self.money >= 10:
+            print("Kupiłeś kawę. Odzyskujesz trochę zdrowia.")
+            self.health += 10
+            self.money -= 10
+        elif choice == "4":
+            print("Wracasz do celi.")
+        else:
+            print("Nie masz wystarczająco pieniędzy na zakup tego przedmiotu.")
+
+    def game_loop(self):
+        print("Witaj w grze o ucieczce z więzienia!")
+        print("Twoim celem jest uciec przed upływem 30 dni.")
+        print("Oto kilka opcji, które masz do dyspozycji każdego dnia:")
+        while self.days_left > 0:
+            self.print_status()
+            print("\nCo chcesz zrobić?")
+            print("1. Próbuj ucieczki")
+            print("2. Stocz walkę z wrogiem")
+            print("3. Eksploruj swoją celę")
+            print("4. Rozmawiaj z innymi więźniami")
+            print("5. Pracuj w więziennej kantynie")
+            print("6. Odwiedź sklep więzienny")
+            print("7. Zakończ grę")
+
+            choice = input("Wybierz numer opcji: ")
+
+            if choice == "1":
+                self.escape_attempt()
+            elif choice == "2":
+                self.fight_enemy(*self.encounter_enemy())
+            elif choice == "3":
+                self.explore_cell()
+            elif choice == "4":
+                self.interact_with_inmates()
+            elif choice == "5":
+                self.prison_job()
+            elif choice == "6":
+                self.prison_store()
+            elif choice == "7":
+                self.end_game()
+            else:
+                print("Wprowadziłeś niepoprawny numer. Spróbuj ponownie.")
+
+            self.days_left -= 1
+
+        print("Koniec gry. Skończył się czas. Dziękujemy za udział!")
+        exit()
+
+    def end_game(self, win=False):
+        if win:
+            print("Gratulacje! Udało ci się uciec z więzienia!")
+        else:
+            print("Koniec gry. Dziękujemy za udział!")
+        exit()
+
+if __name__ == "__main__":
+    game = PrisonEscapeGame()
